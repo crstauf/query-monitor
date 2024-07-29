@@ -129,8 +129,6 @@ abstract class QM_Collector_Assets extends QM_DataCollector {
 
 		$this->data->registered = array_keys( $raw->registered );
 
-		sort( $this->data->registered );
-
 		// A broken asset is one which has been deregistered without also being dequeued
 		if ( ! empty( $broken ) ) {
 			foreach ( $broken as $key => $handle ) {
@@ -173,15 +171,11 @@ abstract class QM_Collector_Assets extends QM_DataCollector {
 			}
 
 			/** @var string $handle */
-			foreach ( $this->data->{$position} as $handle ) {
+			foreach ( $this->data->{$position} as $index => $handle ) {
 				/** @var _WP_Dependency|false $dependency */
 				$dependency = $raw->query( $handle );
 
 				if ( ! $dependency ) {
-					continue;
-				}
-
-				if ( 'registered' === $position && in_array( $handle, $processed ) ) {
 					continue;
 				}
 
@@ -215,6 +209,7 @@ abstract class QM_Collector_Assets extends QM_DataCollector {
 				}
 
 				$this->data->assets[ $position ][ $handle ] = array(
+					'index' => $index,
 					'host' => $host,
 					'port' => $port,
 					'source' => $source,
