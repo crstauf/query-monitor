@@ -220,7 +220,7 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 		if ( is_numeric( $label ) ) {
 			$label = absint( $label ) + 1;
-			echo '<th scope="row" class="qm-row-num qm-num">' . $label . '</th>';
+			echo '<th scope="row" class="qm-row-num qm-num">' . esc_html( ( string ) $label ) . '</th>';
 		} else {
 			echo '<td class="qm-nowrap">';
 
