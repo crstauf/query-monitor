@@ -174,7 +174,7 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 	/**
 	 * @param string $handle
 	 * @param array<string, mixed> $asset
-	 * @param string $label
+	 * @param string|int $label
 	 * @return void
 	 */
 	protected function dependency_row( $handle, array $asset, $label ) {
@@ -218,7 +218,10 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 		echo '<tr data-qm-subject="' . esc_attr( $type . '-' . $handle ) . '" data-qm-' . esc_attr( $type ) . '-host="' . esc_attr( $qm_host ) . '" data-qm-' . esc_attr( $type ) . '-dependents="' . esc_attr( $dependents_list ) . '" data-qm-' . esc_attr( $type ) . '-dependencies="' . esc_attr( $dependencies_list ) . '" class="' . esc_attr( $class ) . '">';
 
-		if ( is_string( $label ) ) {
+		if ( is_numeric( $label ) ) {
+			$label = absint( $label ) + 1;
+			echo '<th scope="row" class="qm-row-num qm-num">' . $label . '</th>';
+		} else {
 			echo '<td class="qm-nowrap">';
 
 			if ( $asset['warning'] ) {
@@ -228,9 +231,6 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 			echo esc_html( $label );
 			echo '</td>';
-		} else if ( is_numeric( $label ) ) {
-			$label = absint( $label ) + 1;
-			echo '<th scope="row" class="qm-row-num qm-num">' . $label . '</th>';
 		}
 
 		$host = $asset['host'];
