@@ -66,7 +66,9 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 		echo '<thead>';
 		echo '<tr>';
 		echo '<th scope="col">' . esc_html__( 'Position', 'query-monitor' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Handle', 'query-monitor' ) . '</th>';
+		echo '<th scope="col" class="qm-sorted-asc qm-sortable-column" role="columnheader" aria-sort="ascending">';
+		echo $this->build_sorter( 'Handle' ); // WPCS: XSS ok;
+		echo '</th>';
 		echo '<th scope="col" class="qm-filterable-column">';
 		$args = array(
 			'prepend' => array(
@@ -115,18 +117,14 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 		$this->before_tabular_output( $this->collector->id() . '-registered', __( 'Registered', 'query-monitor' ) );
 
-		/* translators: %s: "styles" or "scripts" */
-		$caption_format = esc_html__( 'Enqueued %s are not included.', 'query-monitor' );
-
-		printf(
-			'<caption><h2 id="%1$s-caption">%2$s</h2></caption>',
-			esc_attr( $this->collector->id() . '-registered' ),
-			esc_html( sprintf( $caption_format, strtolower( $type_label['plural'] ) ) )
-		);
-
 		echo '<thead>';
 		echo '<tr>';
-		echo '<th scope="col">' . esc_html__( 'Handle', 'query-monitor' ) . '</th>';
+		echo '<th scope="col" class="qm-sorted-asc qm-sortable-column" role="columnheader" aria-sort="ascending">';
+		echo $this->build_sorter( '#' ); // WPCS: XSS ok;
+		echo '</th>';
+		echo '<th scope="col" class="qm-sorted-asc qm-sortable-column" role="columnheader" aria-sort="ascending">';
+		echo $this->build_sorter( 'Handle' ); // WPCS: XSS ok;
+		echo '</th>';
 		echo '<th scope="col" class="qm-filterable-column">';
 		$args = array(
 			'prepend' => array(
@@ -150,7 +148,7 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 		if ( ! empty( $data->assets['registered'] ) ) {
 			foreach ( $data->assets['registered'] as $handle => $asset ) {
-				$this->dependency_row( $handle, $asset, '' );
+				$this->dependency_row( $handle, $asset, $asset['index'] );
 			}
 		}
 
@@ -176,7 +174,7 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 	/**
 	 * @param string $handle
 	 * @param array<string, mixed> $asset
-	 * @param string $label
+	 * @param string|int $label
 	 * @return void
 	 */
 	protected function dependency_row( $handle, array $asset, $label ) {
@@ -220,7 +218,10 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 
 		echo '<tr data-qm-subject="' . esc_attr( $type . '-' . $handle ) . '" data-qm-' . esc_attr( $type ) . '-host="' . esc_attr( $qm_host ) . '" data-qm-' . esc_attr( $type ) . '-dependents="' . esc_attr( $dependents_list ) . '" data-qm-' . esc_attr( $type ) . '-dependencies="' . esc_attr( $dependencies_list ) . '" class="' . esc_attr( $class ) . '">';
 
-		if ( $label !== '' ) {
+		if ( is_numeric( $label ) ) {
+			$label = absint( $label ) + 1;
+			echo '<th scope="row" class="qm-row-num qm-num">' . esc_html( (string) $label ) . '</th>';
+		} else {
 			echo '<td class="qm-nowrap">';
 
 			if ( $asset['warning'] ) {
@@ -247,7 +248,7 @@ abstract class QM_Output_Html_Assets extends QM_Output_Html {
 			$host = "{$host}:{$asset['port']}";
 		}
 
-		echo '<td class="qm-nowrap qm-ltr">' . esc_html( $handle ) . '</td>';
+		echo '<td class="qm-nowrap qm-ltr" data-qm-sort-weight="' . esc_attr( $handle ) . '">' . esc_html( $handle ) . '</td>';
 		echo '<td class="qm-nowrap qm-ltr">' . esc_html( $host ) . '</td>';
 		echo '<td class="qm-ltr">';
 		if ( $asset['source'] instanceof WP_Error ) {
